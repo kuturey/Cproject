@@ -1,15 +1,149 @@
-# MiniGit - Simplified Version Control System
+```markdown
+# MiniGit - упрощенная система контроля версий
 
-A lightweight Git-like VCS implemented in C with persistent storage, branching, and structural sharing.
+MiniGit — это учебный проект, реализующий базовые принципы работы Git на языке C. 
+Проект демонстрирует ключевые концепции систем контроля версий: персистентность, 
+структурное разделение (structural sharing), хеширование содержимого и работу с ветками.
 
-## Features
-- ✅ Persistent storage between runs
-- ✅ Commit history with parent links
-- ✅ Branch creation, switching, deletion
-- ✅ Staging area (add/commit workflow)
-- ✅ Object storage with deduplication
-- ✅ Structural sharing (trees)
+## 📋 Содержание
+- [О проекте](#о-проекте)
+- [Архитектура](#архитектура)
+- [Структура файлов](#структура-файлов)
+- [Основные функции](#основные-функции)
+- [Сборка и запуск](#сборка-и-запуск)
+- [Использование](#использование)
+- [Пример работы](#пример-работы)
+- [Особенности реализации](#особенности-реализации)
 
-## Build
+## 📌 О проекте
+
+MiniGit реализует базовые возможности Git:
+- **Персистентность** — все данные сохраняются на диск в папку `.minigit`
+- **Structural sharing** — неизменённые файлы не дублируются в памяти
+- **Хеширование** — каждый объект идентифицируется по SHA-1 подобному хешу
+- **Ветвление** — создание, переключение и удаление веток
+- **Staging area** — промежуточная область перед коммитом
+
+## 🏗 Архитектура
+
+Проект разделён на два основных слоя:
+
+### Ядро (Core) — `src/core/`
+- **`blob.c`** — работа с содержимым файлов (блобы)
+- **`tree.c`** — структура директорий (деревья)
+- **`commit.c`** — создание и хранение коммитов
+- **`object_store.c`** — хеш-таблица для хранения объектов в памяти
+- **`hash.c`** — хеш-функции
+- **`save.c`** — сохранение/загрузка данных на диск
+
+### Команды (Commands) — `src/commands/`
+- **`cmd_add.c`** — добавление файлов в staging area
+- **`cmd_commit.c`** — создание коммитов
+- **`cmd_log.c`** — просмотр истории
+- **`cmd_branch_list.c`** — управление ветками
+- **`cmd_checkout.c`** — переключение между версиями
+- **`cmd_stats.c`** — статистика репозитория
+- **`cmd_ls_files.c`** / **`cmd_ls_tree.c`** — просмотр файлов
+- **`repo.c`** — состояние репозитория
+
+## 📁 Структура файлов
+
+```
+minigit/
+├── bin/               # скомпилированный исполняемый файл
+├── include/           
+│   └── minigit.h      # заголовочный файл со структурами и прототипами
+├── src/
+│   ├── core/          # ядро системы
+│   └── commands/      # пользовательские команды
+├── .minigit/          # служебная папка (создаётся автоматически)
+├── .gitignore         # игнорируемые файлы
+└── README.md          # этот файл
+```
+
+## ⚙️ Основные функции
+
+| Команда | Описание |
+|---------|----------|
+| `add <file> <content>` | Добавить файл в staging area |
+| `commit <message>` | Создать коммит |
+| `log` | Показать историю коммитов |
+| `stats` | Показать статистику |
+| `branch` | Список веток |
+| `branch <name>` | Создать новую ветку |
+| `branch checkout <name>` | Переключиться на ветку |
+| `branch delete <name>` | Удалить ветку |
+| `ls-files` | Показать файлы в staging |
+| `ls-tree <hash>` | Показать содержимое дерева |
+| `show <hash>` | Показать информацию о коммите |
+
+## 🔧 Сборка и запуск
+
 ```bash
+# Компиляция
 gcc -Iinclude src/core/*.c src/commands/*.c src/main.c -o bin/minigit.exe
+
+# Запуск (из корневой папки)
+bin/minigit.exe <команда> [аргументы]
+```
+
+## 🎯 Использование
+
+```bash
+# Создать новый файл и сделать коммит
+bin/minigit.exe add README.md "# MiniGit project"
+bin/minigit.exe commit "Initial commit"
+
+# Добавить ещё файл
+bin/minigit.exe add main.c "#include <stdio.h>"
+bin/minigit.exe commit "Add main.c"
+
+# Посмотреть историю
+bin/minigit.exe log
+
+# Создать и переключиться на ветку
+bin/minigit.exe branch develop
+bin/minigit.exe branch checkout develop
+
+# Статистика
+bin/minigit.exe stats
+```
+
+## 💡 Пример работы
+
+```
+$ bin/minigit.exe add README.md "# MiniGit"
+Adding file: README.md
+New file added to staging area
+
+$ bin/minigit.exe commit "Initial commit"
+Committing changes...
+Commit created successfully!
+   Hash: a1b2c3d4e5f6...
+
+$ bin/minigit.exe log
+Commit history:
+================
+commit a1b2c3d4e5f6...
+Date: Mon Mar 18 12:34:56 2026
+    Initial commit
+```
+
+## 🔍 Особенности реализации
+
+### Хеш-таблица
+- 256 корзин для быстрого поиска объектов
+- Коллизии разрешаются через связные списки
+- Поиск O(1) в среднем
+
+### Structural sharing
+- Блобы с одинаковым содержимым хранятся один раз
+- Деревья переиспользуют неизменённые части
+- Коммиты ссылаются на существующие объекты
+
+### Персистентность
+- Все объекты сохраняются в `.minigit/objects/`
+- HEAD и текущая ветка сохраняются в файлах
+- Staging area восстанавливается при запуске
+
+
