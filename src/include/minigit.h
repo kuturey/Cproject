@@ -10,37 +10,34 @@
 #define MAX_PATH 260
 #define MAX_MESSAGE 1024
 
-// ============ Типы объектов ============
 typedef enum {
     OBJ_BLOB = 0,
     OBJ_TREE = 1,
     OBJ_COMMIT = 2
 } ObjectType;
 
-// ============ Основные структуры данных ============
-
 typedef struct Blob {
-    ObjectType type;                    // <-- ДОБАВЛЕНО
+    ObjectType type;                    
     unsigned char hash[SHA1_HASH_SIZE];
     char *content;
-    size_t size;
+    int size;
 } Blob;
 
 typedef struct TreeEntry {
     char *name;
-    enum { BLOB_ENTRY, TREE_ENTRY } type;  // тип записи (не путать с ObjectType!)
+    enum { BLOB_ENTRY, TREE_ENTRY } type;  // что из себя представляет обьект в дереве (файл или каталог)
     unsigned char hash[SHA1_HASH_SIZE];
 } TreeEntry;
 
 typedef struct Tree {
-    ObjectType type;                    // <-- ДОБАВЛЕНО
+    ObjectType type;                    
     unsigned char hash[SHA1_HASH_SIZE];
     TreeEntry *entries;
     int entry_count;
 } Tree;
 
 typedef struct Commit {
-    ObjectType type;                    // <-- ДОБАВЛЕНО
+    ObjectType type;                    
     unsigned char hash[SHA1_HASH_SIZE];
     unsigned char tree_hash[SHA1_HASH_SIZE];
     unsigned char parent_hash[SHA1_HASH_SIZE];
@@ -48,7 +45,6 @@ typedef struct Commit {
     time_t timestamp;
 } Commit;
 
-// ============ Хеш-таблица для Object Store ============
 typedef struct HashBucket {
     void *object;
     unsigned char hash[SHA1_HASH_SIZE];
@@ -61,34 +57,35 @@ typedef struct ObjectStore {
     int total_count;
 } ObjectStore;
 
-// ============ Состояние репозитория ============
 typedef struct RepoState {
     Commit *head;
     char *current_branch;
     Tree *staging_area;
     ObjectStore *store;
-    char *path;  // путь к репозиторию (для сохранения)
+    char *path;  // путь к репозиторию
 } RepoState;
 
-// ============ Ветка ============
 typedef struct BranchNode {
     char name[100];
     unsigned char commit_hash[SHA1_HASH_SIZE];
     struct BranchNode *next;
 } BranchNode;
 
-// ============ Прототипы функций ============
+//Прототипы функций
 
 // blob.c
 Blob* create_blob(const char *content);
 void free_blob(Blob *blob);
 
 // tree.c
-Tree* create_tree(void);
-void free_tree(Tree *tree);
+void tree_update_hash(Tree *tree);
+Tree *create_tree(void);
+Tree *clone_tree(Tree *tree);
 void add_tree_entry(Tree *tree, const char *name, int is_blob, const unsigned char *hash);
 TreeEntry* find_tree_entry(Tree *tree, const char *name);
+int remove_tree_entry(Tree *tree, const char *name);
 void print_tree(Tree *tree);
+void free_tree(Tree *tree);
 
 // commit.c
 Commit* create_commit(Commit *parent, Tree *root, const char *message);
@@ -99,6 +96,7 @@ void print_history(Commit *start, ObjectStore *store);
 
 // object_store.c
 ObjectStore* init_object_store(void);
+char *stringdup(const char *s);
 void free_object_store(ObjectStore *store);
 void add_object(ObjectStore *store, void *obj, const unsigned char *hash);
 void* get_object(ObjectStore *store, const unsigned char *hash);
@@ -107,9 +105,9 @@ void print_store_stats(ObjectStore *store);
 int has_object(ObjectStore *store, const unsigned char *hash);
 
 // hash.c
-void compute_hash(const void *data, size_t len, unsigned char *hash);
+void compute_hash(const void *data, int len, unsigned char *hash);
 
-// ============ Функции команд ============
+//Функции команд
 int cmd_add(RepoState *repo, const char *path, const char *content);
 void print_staging_area(RepoState *repo);
 
@@ -137,15 +135,15 @@ void free_repo(RepoState *repo);
 void set_head(RepoState *repo, Commit *commit);
 
 // save.c
-// Функции из save.c
 void load_all_objects_from_disk(ObjectStore *store, const char *objects_dir);
 void save_branches_to_disk(void);
 void load_branches_from_disk(RepoState *repo);
 void init_branches(RepoState *repo);
 int save_repo_state(RepoState *repo);
 int load_repo_state(RepoState *repo);
-void save_object(ObjectStore *store, void *obj, ObjectType type, const unsigned char *hash);  // <-- изменён прототип
+void save_object(ObjectStore *store, void *obj, ObjectType type, const unsigned char *hash);
 void* load_object(ObjectStore *store, const unsigned char *hash);
-// Объявление глобальной переменной branches (определена в cmd_branch_list.c)
+
 extern BranchNode *branches;
-#endif // MINIGIT_H
+
+#endif

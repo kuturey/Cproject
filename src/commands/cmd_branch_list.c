@@ -3,23 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-typedef struct BranchNode {
-    char name[100];
-    unsigned char commit_hash[SHA1_HASH_SIZE];
-    struct BranchNode *next;
-} BranchNode;
-
-// ✅ УБРАЛИ static - теперь видна из других файлов
 BranchNode *branches = NULL;
-
-void init_branches(RepoState *repo);
-int cmd_create_branch(RepoState *repo, const char *name);
-int cmd_switch_branch(RepoState *repo, const char *name);
-void cmd_branch_list(RepoState *repo);
-int cmd_delete_branch(RepoState *repo, const char *name);
-BranchNode* find_branch(const char *name);
-void save_branches_to_disk(void);
-void load_branches_from_disk(RepoState *repo);
 
 void save_branches_to_disk(void) {
     FILE *f = fopen(".minigit/branches", "w");
@@ -74,7 +58,7 @@ void init_branches(RepoState *repo) {
         branches->next = NULL;
         
         if (repo) {
-            repo->current_branch = strdup("master");
+            repo->current_branch = stringdup("master");
         }
     }
 }
@@ -126,7 +110,7 @@ int cmd_switch_branch(RepoState *repo, const char *name) {
             if (repo->current_branch) {
                 free(repo->current_branch);
             }
-            repo->current_branch = strdup(name);
+            repo->current_branch = stringdup(name);
             
             Commit *target_commit = (Commit*)get_object(repo->store, current->commit_hash);
             if (target_commit) {

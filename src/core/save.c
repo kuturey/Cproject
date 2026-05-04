@@ -5,6 +5,7 @@
 #include <sys/stat.h>
 #include <errno.h>
 #include <dirent.h>
+#include <unistd.h>
 
 #define MINIGIT_DIR ".minigit"
 #define OBJECTS_DIR ".minigit/objects"
@@ -13,11 +14,11 @@
 #define STAGING_FILE ".minigit/staging"
 
 void init_dirs(void) {
-    mkdir(MINIGIT_DIR);
-    mkdir(OBJECTS_DIR);
+    mkdir(MINIGIT_DIR, 0777);
+    mkdir(OBJECTS_DIR, 0777);
 }
 
-// ✅ ИСПРАВЛЕНО: Принимаем тип объекта явно
+// сохраняет обьект в .minigit/objects
 void save_object(ObjectStore *store, void *obj, ObjectType type, const unsigned char *hash) {
     char path[512];
     char hash_str[41];
@@ -29,7 +30,7 @@ void save_object(ObjectStore *store, void *obj, ObjectType type, const unsigned 
     
     char dir_path[512];
     sprintf(dir_path, "%s/%.2s", OBJECTS_DIR, hash_str);
-    mkdir(dir_path);
+    mkdir(dir_path, 0777);
     
     sprintf(path, "%s/%s", dir_path, hash_str + 2);
     
@@ -39,14 +40,12 @@ void save_object(ObjectStore *store, void *obj, ObjectType type, const unsigned 
     FILE *f = fopen(path, "wb");
     if (!f) return;
     
-    // ✅ 1 байт типа объекта
     unsigned char type_byte = (unsigned char)type;
     fwrite(&type_byte, 1, 1, f);
     
-    // ✅ Сохраняем в зависимости от типа
     if (type == OBJ_BLOB) {
         Blob *blob = (Blob*)obj;
-        fwrite(&blob->size, sizeof(size_t), 1, f);
+        fwrite(&blob->size, sizeof(int), 1, f);
         if (blob->size > 0 && blob->content) {
             fwrite(blob->content, blob->size, 1, f);
         }
@@ -102,7 +101,7 @@ void* load_object(ObjectStore *store, const unsigned char *hash) {
     if (type == OBJ_BLOB) {
         Blob *blob = (Blob*)calloc(1, sizeof(Blob));
         blob->type = OBJ_BLOB;
-        fread(&blob->size, sizeof(size_t), 1, f);
+        fread(&blob->size, sizeof(int), 1, f);
         if (blob->size > 0) {
             blob->content = (char*)malloc(blob->size + 1);
             fread(blob->content, blob->size, 1, f);
@@ -153,7 +152,6 @@ void* load_object(ObjectStore *store, const unsigned char *hash) {
     return obj;
 }
 
-// ✅ Загрузить ВСЕ объекты с диска
 void load_all_objects_from_disk(ObjectStore *store, const char *objects_dir) {
     DIR *dir = opendir(objects_dir);
     if (!dir) return;
@@ -189,7 +187,6 @@ void load_all_objects_from_disk(ObjectStore *store, const char *objects_dir) {
     closedir(dir);
 }
 
-// ✅ Загрузить staging area с диска
 void load_staging_area(RepoState *repo) {
     FILE *f = fopen(STAGING_FILE, "r");
     if (!f) return;
@@ -271,12 +268,11 @@ int load_repo_state(RepoState *repo) {
         if (fgets(branch, 100, f)) {
             branch[strcspn(branch, "\n")] = 0;
             if (repo->current_branch) free(repo->current_branch);
-            repo->current_branch = strdup(branch);
+            repo->current_branch = stringdup(branch);
         }
         fclose(f);
     }
     
-    // ✅ Загружаем staging area
     load_staging_area(repo);
     
     return 0;

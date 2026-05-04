@@ -14,7 +14,7 @@ void cmd_stats(RepoState *repo) {
     int commit_count = 0;
     int file_count = 0;
     
-    // ✅ Проверяем, что HEAD загружен
+    //Проверяем, что HEAD загружен
     Commit *current = repo->head;
     while (current) {
         commit_count++;

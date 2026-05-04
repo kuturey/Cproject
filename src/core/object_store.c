@@ -5,6 +5,13 @@
 
 static ObjectStore *global_store = NULL;
 
+char *stringdup(const char *s) {
+    size_t n = strlen(s) + 1;
+    char *p = malloc(n);
+    if (p) memcpy(p, s, n);
+    return p;
+}
+
 ObjectStore* init_object_store(void) {
     if (global_store) {
         return global_store;
@@ -33,18 +40,16 @@ void add_object(ObjectStore *store, void *obj, const unsigned char *hash) {
     
     int bucket_idx = get_bucket_index(hash);
     
-    // Проверяем, нет ли уже такого
+    // Проверка, нет ли уже такого
     HashBucket *current = store->buckets[bucket_idx];
     while (current) {
         if (memcmp(current->hash, hash, SHA1_HASH_SIZE) == 0) {
-            return;  // Уже есть
+            return;
         }
         current = current->next;
     }
     
-    // Создаем новый бакет
     HashBucket *new_bucket = (HashBucket*)malloc(sizeof(HashBucket));
-    if (!new_bucket) return;
     
     new_bucket->object = obj;
     memcpy(new_bucket->hash, hash, SHA1_HASH_SIZE);
@@ -81,7 +86,7 @@ ObjectStore* get_global_store(void) {
     return global_store;
 }
 
-void print_store_stats(ObjectStore *store) {
+void collect_store_stats(ObjectStore *store) {
     if (!store) return;
     
     int used_buckets = 0;
@@ -95,8 +100,6 @@ void print_store_stats(ObjectStore *store) {
             }
         }
     }
-    
-    // Статистика не выводится, только собирается
 }
 
 void free_object_store(ObjectStore *store) {

@@ -4,11 +4,10 @@
 #include <time.h>
 
 Commit* create_commit(Commit *parent, Tree *root, const char *message) {
-    // ✅ Используем calloc и устанавливаем type
     Commit *commit = (Commit*)calloc(1, sizeof(Commit));
     if (!commit) return NULL;
     
-    commit->type = OBJ_COMMIT;  // ✅ ВАЖНО
+    commit->type = OBJ_COMMIT; 
     
     if (root) {
         memcpy(commit->tree_hash, root->hash, SHA1_HASH_SIZE);
@@ -22,7 +21,7 @@ Commit* create_commit(Commit *parent, Tree *root, const char *message) {
         memset(commit->parent_hash, 0, SHA1_HASH_SIZE);
     }
     
-    commit->message = strdup(message);
+    commit->message = stringdup(message);
     commit->timestamp = time(NULL);
     
     unsigned char data[SHA1_HASH_SIZE * 2 + 256 + sizeof(time_t)];

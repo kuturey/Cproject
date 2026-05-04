@@ -17,9 +17,8 @@ Blob* create_blob(const char *content) {
     }
     
     Blob *blob = (Blob*)calloc(1, sizeof(Blob));
-    if (!blob) return NULL;
     
-    blob->type = OBJ_BLOB;  // ✅ ВАЖНО
+    blob->type = OBJ_BLOB;
     blob->size = strlen(content);
     blob->content = (char*)malloc(blob->size + 1);
     if (!blob->content) {

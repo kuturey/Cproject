@@ -31,7 +31,7 @@ Commit* cmd_commit(RepoState *repo, const char *message) {
         return NULL;
     }
     
-    // ✅ СОХРАНЯЕМ ВСЕ ОБЪЕКТЫ НА ДИСК
+    //  сохраняем обьекты
     save_object(repo->store, new_commit, OBJ_COMMIT, new_commit->hash);
     
     Tree *tree = (Tree*)get_object(repo->store, new_commit->tree_hash);

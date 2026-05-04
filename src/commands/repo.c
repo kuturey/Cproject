@@ -8,17 +8,14 @@ RepoState* init_repo(void) {
     if (!repo) return NULL;
     
     repo->head = NULL;
-    repo->current_branch = strdup("master");
+    repo->current_branch = stringdup("master");
     repo->staging_area = create_tree();
     repo->store = init_object_store();
     
-    // ✅ 1. СНАЧАЛА загружаем все объекты с диска
     load_all_objects_from_disk(repo->store, ".minigit/objects");
     
-    // ✅ 2. ПОТОМ загружаем состояние (HEAD, staging, ветки)
     load_repo_state(repo);
     
-    // ✅ 3. Инициализируем ветки
     init_branches(repo);
     
     return repo;
