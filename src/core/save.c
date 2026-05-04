@@ -157,10 +157,11 @@ void load_all_objects_from_disk(ObjectStore *store, const char *objects_dir) {
     if (!dir) return;
     
     struct dirent *entry;
+    char full_hash[41];
+    char subdir_path[512];
     while ((entry = readdir(dir)) != NULL) {
         if (entry->d_name[0] == '.') continue;
         
-        char subdir_path[512];
         snprintf(subdir_path, sizeof(subdir_path), "%s/%s", objects_dir, entry->d_name);
         
         DIR *subdir = opendir(subdir_path);
@@ -170,8 +171,10 @@ void load_all_objects_from_disk(ObjectStore *store, const char *objects_dir) {
         while ((subentry = readdir(subdir)) != NULL) {
             if (subentry->d_name[0] == '.') continue;
             
-            char full_hash[41];
-            snprintf(full_hash, sizeof(full_hash), "%s%s", entry->d_name, subentry->d_name);
+            if (strlen(entry->d_name) != 2 || strlen(subentry->d_name) != 38) continue;
+            memcpy(full_hash, entry->d_name, 2);
+            memcpy(full_hash + 2, subentry->d_name, 38);
+            full_hash[40] = '\0';
             
             unsigned char hash[SHA1_HASH_SIZE];
             for (int i = 0; i < SHA1_HASH_SIZE; i++) {
@@ -227,7 +230,9 @@ int save_repo_state(RepoState *repo) {
         }
     }
     
-    if (repo->staging_area && repo->staging_area->entry_count > 0) {
+    Tree *head_tree = get_commit_tree(repo->head, repo->store);
+    int staging_has_changes = repo->staging_area && (!repo->head || !tree_equals(head_tree, repo->staging_area));
+    if (staging_has_changes) {
         FILE *f = fopen(STAGING_FILE, "w");
         if (f) {
             for (int i = 0; i < repo->staging_area->entry_count; i++) {
@@ -240,6 +245,9 @@ int save_repo_state(RepoState *repo) {
             }
             fclose(f);
         }
+    } 
+    else {
+        remove(STAGING_FILE);
     }
     
     return 0;

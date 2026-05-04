@@ -2,11 +2,16 @@
 #include <stdio.h>
 #include <string.h>
 
+void ensure_has_staging(RepoState *repo) {
+    if (!repo->staging_area) reset_staging_to_head(repo);
+}
+
 int cmd_add(RepoState *repo, const char *path, const char *content) {
     
     printf("Adding file: %s\n", path);
     printf("Content: %s\n", content);
     
+    ensure_staging(repo);
     Blob *blob = create_blob(content);
     
     if (!repo->staging_area) {
@@ -15,20 +20,27 @@ int cmd_add(RepoState *repo, const char *path, const char *content) {
     }
     
     TreeEntry *existing = find_tree_entry(repo->staging_area, path);
-    if (existing) {
-        if (memcmp(existing->hash, blob->hash, SHA1_HASH_SIZE) == 0) {
-            printf("File unchanged, nothing to stage\n");
-            return 0;
-        }
-        printf("File updated in staging area\n");
-    } else {
-        printf("New file added to staging area\n");
+    if (existing && memcmp(existing->hash, blob->hash, SHA1_HASH_SIZE) == 0) {
+        printf("File unchanged: %s\n", path);
+        return 0;
     }
-    
+
     add_tree_entry(repo->staging_area, path, 1, blob->hash);
-    printf("Staging area now has %d files\n", repo->staging_area->entry_count);
-    
+    save_object(repo->store, blob, OBJ_BLOB, blob->hash);
+    printf(existing ? "Updated: %s\n" : "Added: %s\n", path);
     save_repo_state(repo);
+    return 0;
+}
+
+int cmd_remove(RepoState *repo, const char *path){
+    
+    ensure_staging(repo);
+    if (remove_tree_entry(repo->staging_area, path)) {
+        printf("Removed: %s\n", path);
+        save_repo_state(repo);
+        return 0;
+    }
+    printf("File not found: %s\n", path);
     return 0;
 }
 

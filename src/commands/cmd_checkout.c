@@ -3,7 +3,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-// Декларация функции поиска ветки из cmd_branch_list.c
 struct BranchNode* find_branch(const char *name);
 int cmd_switch_branch(RepoState *repo, const char *branch_name);
 
@@ -32,7 +31,7 @@ int cmd_checkout(RepoState *repo, const char *target) {
         Commit *target_commit = (Commit*)get_object(repo->store, hash);
         if (target_commit) {
             repo->head = target_commit;
-            repo->current_branch = NULL;  // detached HEAD
+            repo->current_branch = NULL;
             printf("Switched to commit\n");
             return 0;
         }

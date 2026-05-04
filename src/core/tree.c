@@ -19,10 +19,7 @@ void tree_update_hash(Tree *tree) {
 
     for (int i = 0; i < tree->entry_count; i++) {
         int name_len = (int)strlen(tree->entries[i].name);
-        total_size += sizeof(int);        // длина имени
-        total_size += name_len;           // само имя
-        total_size += sizeof(int);        // тип
-        total_size += SHA1_HASH_SIZE;     
+        total_size += sizeof(int) + name_len + sizeof(int) + SHA1_HASH_SIZE;
     }
 
     unsigned char *data = (unsigned char*)malloc(total_size);
@@ -162,7 +159,6 @@ Tree* get_commit_tree(Commit *commit, ObjectStore *store) {
 }
 
 int get_file_exists(Commit *commit, const char *path, ObjectStore *store) {
-
     Tree *tree = get_commit_tree(commit, store);
 
     TreeEntry *entry = find_tree_entry(tree, path);
@@ -200,7 +196,7 @@ void print_files(Commit *commit, ObjectStore *store) {
 
 void print_tree(Tree *tree) {
     if (!tree) return;
-    printf("\nTree contents:\n");
+    printf("\nTree:\n");
     printf("  Hash: ");
     for(int i = 0; i < 8; i++) printf("%02x", tree->hash[i]);
     printf("\n");
@@ -221,4 +217,12 @@ void free_tree(Tree *tree) {
         free(tree->entries);
         free(tree);
     }
+}
+
+int tree_equals(Tree *a, Tree *b) {
+    if (a == b) return 1;
+    if (!a || !b) return 0;
+    tree_update_hash(a);
+    tree_update_hash(b);
+    return memcmp(a->hash, b->hash, SHA1_HASH_SIZE) == 0;
 }

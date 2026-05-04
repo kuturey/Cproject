@@ -74,7 +74,7 @@ typedef struct BranchNode {
 //Прототипы функций
 
 // blob.c
-Blob* create_blob(const char *content);
+Blob *create_blob(const char *content);
 void free_blob(Blob *blob);
 
 // tree.c
@@ -82,24 +82,29 @@ void tree_update_hash(Tree *tree);
 Tree *create_tree(void);
 Tree *clone_tree(Tree *tree);
 void add_tree_entry(Tree *tree, const char *name, int is_blob, const unsigned char *hash);
-TreeEntry* find_tree_entry(Tree *tree, const char *name);
+TreeEntry *find_tree_entry(Tree *tree, const char *name);
 int remove_tree_entry(Tree *tree, const char *name);
+Tree *get_commit_tree(Commit *commit, ObjectStore *store);
+int get_file_exists(Commit *commit, const char *path, ObjectStore *store);
+char *get_file_content(Commit *commit, const char *path, ObjectStore *store);
+void print_files(Commit *commit, ObjectStore *store);
 void print_tree(Tree *tree);
 void free_tree(Tree *tree);
+int tree_equals(Tree *a, Tree *b);
 
 // commit.c
-Commit* create_commit(Commit *parent, Tree *root, const char *message);
+Commit *create_commit(Commit *parent, Tree *root, const char *message);
 void free_commit(Commit *commit);
-Commit* get_parent_commit(Commit *commit, ObjectStore *store);
+Commit *get_parent_commit(Commit *commit, ObjectStore *store);
 void print_commit(Commit *commit);
 void print_history(Commit *start, ObjectStore *store);
 
 // object_store.c
-ObjectStore* init_object_store(void);
+ObjectStore *init_object_store(void);
 char *stringdup(const char *s);
 void free_object_store(ObjectStore *store);
 void add_object(ObjectStore *store, void *obj, const unsigned char *hash);
-void* get_object(ObjectStore *store, const unsigned char *hash);
+void *get_object(ObjectStore *store, const unsigned char *hash);
 ObjectStore* get_global_store(void);
 void print_store_stats(ObjectStore *store);
 int has_object(ObjectStore *store, const unsigned char *hash);
@@ -108,31 +113,46 @@ int has_object(ObjectStore *store, const unsigned char *hash);
 void compute_hash(const void *data, int len, unsigned char *hash);
 
 //Функции команд
+// cmd_add_remove.c
 int cmd_add(RepoState *repo, const char *path, const char *content);
+int cmd_remove(RepoState *repo, const char *path);
 void print_staging_area(RepoState *repo);
 
-Commit* cmd_commit(RepoState *repo, const char *message);
+// cmd_commit.c
+Commit *cmd_commit(RepoState *repo, const char *message);
 void cmd_status(RepoState *repo);
 
+// cmd_log.c
 void cmd_log(RepoState *repo);
 void cmd_show(RepoState *repo, const char *commit_hash);
 
+// cmd_checkout.c
 int cmd_checkout(RepoState *repo, const char *target);
 
+// cmd_branch_list.c
 int cmd_create_branch(RepoState *repo, const char *name);
 int cmd_switch_branch(RepoState *repo, const char *name);
 void cmd_branch_list(RepoState *repo);
 int cmd_delete_branch(RepoState *repo, const char *name);
 BranchNode* find_branch(const char *name);
 
+// cmd_stats.c
 void cmd_stats(RepoState *repo);
+
+// cmd_ls_tree.c
 void cmd_ls_tree(RepoState *repo, const char *hash);
+
+// cmd_ls_files.c
 void cmd_ls_files(RepoState *repo);
 
+// cmd_get_branch_head
+Commit *get_branch_head(RepoState *repo, const char *name);
+
 // repo.c
-RepoState* init_repo(void);
+RepoState *init_repo(void);
 void free_repo(RepoState *repo);
 void set_head(RepoState *repo, Commit *commit);
+void reset_staging_to_head(RepoState *repo);
 
 // save.c
 void load_all_objects_from_disk(ObjectStore *store, const char *objects_dir);
@@ -142,7 +162,7 @@ void init_branches(RepoState *repo);
 int save_repo_state(RepoState *repo);
 int load_repo_state(RepoState *repo);
 void save_object(ObjectStore *store, void *obj, ObjectType type, const unsigned char *hash);
-void* load_object(ObjectStore *store, const unsigned char *hash);
+void *load_object(ObjectStore *store, const unsigned char *hash);
 
 extern BranchNode *branches;
 
