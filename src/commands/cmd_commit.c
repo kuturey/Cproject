@@ -74,26 +74,3 @@ Commit* cmd_commit(RepoState *repo, const char *message) {
     
     return new_commit;
 }
-
-void cmd_status(RepoState *repo) {
-    if (!repo) return;
-    
-    printf("\nRepository status:\n");
-    printf("==================\n");
-    
-    if (repo->current_branch) {
-        printf("On branch: %s\n", repo->current_branch);
-    } else {
-        printf("Not on any branch\n");
-    }
-    
-    if (repo->head) {
-        printf("HEAD: ");
-        for(int i = 0; i < 8; i++) printf("%02x", repo->head->hash[i]);
-        printf("\n");
-    } else {
-        printf("HEAD: (no commits yet)\n");
-    }
-    
-    print_staging_area(repo);
-}

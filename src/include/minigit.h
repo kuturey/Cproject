@@ -120,7 +120,6 @@ void print_staging_area(RepoState *repo);
 
 // cmd_commit.c
 Commit *cmd_commit(RepoState *repo, const char *message);
-void cmd_status(RepoState *repo);
 
 // cmd_log.c
 void cmd_log(RepoState *repo);
@@ -139,14 +138,18 @@ BranchNode* find_branch(const char *name);
 // cmd_stats.c
 void cmd_stats(RepoState *repo);
 
-// cmd_ls_tree.c
-void cmd_ls_tree(RepoState *repo, const char *hash);
+// cmd_get_file.c
+void cmd_content(RepoState *repo, const char *commit_hash, const char *path);
+void cmd_exists(RepoState *repo, const char *commit_hash, const char *path);
 
-// cmd_ls_files.c
-void cmd_ls_files(RepoState *repo);
+// cmd_print_files.c
+void cmd_print_files(Commit *commit, ObjectStore *store);
 
-// cmd_get_branch_head
+// cmd_get_branch_head.c
 Commit *get_branch_head(RepoState *repo, const char *name);
+
+// cmd_simple_merge.c
+Commit* cmd_simple_merge(RepoState *repo, const char *other_branch, const char *message);
 
 // repo.c
 RepoState *init_repo(void);

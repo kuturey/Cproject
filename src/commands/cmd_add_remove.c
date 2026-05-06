@@ -11,7 +11,7 @@ int cmd_add(RepoState *repo, const char *path, const char *content) {
     printf("Adding file: %s\n", path);
     printf("Content: %s\n", content);
     
-    ensure_staging(repo);
+    ensure_has_staging(repo);
     Blob *blob = create_blob(content);
     
     if (!repo->staging_area) {
@@ -34,7 +34,7 @@ int cmd_add(RepoState *repo, const char *path, const char *content) {
 
 int cmd_remove(RepoState *repo, const char *path){
     
-    ensure_staging(repo);
+    ensure_has_staging(repo);
     if (remove_tree_entry(repo->staging_area, path)) {
         printf("Removed: %s\n", path);
         save_repo_state(repo);

@@ -3,9 +3,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-struct BranchNode* find_branch(const char *name);
-int cmd_switch_branch(RepoState *repo, const char *branch_name);
-
 // Переключиться на коммит или ветку
 int cmd_checkout(RepoState *repo, const char *target) {
     if (!repo || !target) return -1;
