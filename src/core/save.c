@@ -230,7 +230,7 @@ int save_repo_state(RepoState *repo) {
         }
     }
     
-    Tree *head_tree = get_commit_tree(repo->head, repo->store);
+    Tree *head_tree = repo->head ? get_commit_tree(repo->head, repo->store) : NULL;
     int staging_has_changes = repo->staging_area && (!repo->head || !tree_equals(head_tree, repo->staging_area));
     if (staging_has_changes) {
         FILE *f = fopen(STAGING_FILE, "w");
@@ -281,7 +281,13 @@ int load_repo_state(RepoState *repo) {
         fclose(f);
     }
     
-    load_staging_area(repo);
+    if (access(STAGING_FILE, F_OK) == 0) {
+        load_staging_area(repo);
+    } 
+    else {
+        free_tree(repo->staging_area);
+        repo->staging_area = clone_tree(get_commit_tree(repo->head, repo->store));
+    }
     
     return 0;
 }

@@ -111,6 +111,7 @@ int has_object(ObjectStore *store, const unsigned char *hash);
 
 // hash.c
 void compute_hash(const void *data, int len, unsigned char *hash);
+int parse_hash(const char *s, unsigned char *hash);
 
 //Функции команд
 // cmd_add_remove.c

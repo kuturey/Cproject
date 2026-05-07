@@ -1,0 +1,19 @@
+./bin/minigit
+./bin/minigit init
+./bin/minigit add a.txt alpha
+./bin/minigit commit "add a"
+./bin/minigit print_files
+./bin/minigit content HEAD a.txt
+./bin/minigit exists HEAD a.txt
+./bin/minigit add b.txt beta
+./bin/minigit commit "add b"
+./bin/minigit print_files
+./bin/minigit content HEAD a.txt
+./bin/minigit content HEAD b.txt
+./bin/minigit print_history
+./bin/minigit branch dev
+./bin/minigit branch
+./bin/minigit get_branch_head dev
+./bin/minigit rm a.txt
+./bin/minigit commit "remove a"
+./bin/minigit exists HEAD a.txt

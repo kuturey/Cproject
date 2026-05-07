@@ -1,5 +1,6 @@
 #include "../include/minigit.h"
 #include <stdio.h>
+#include <ctype.h>
 
 void compute_hash(const void *data, int len, unsigned char *hash) {
     const unsigned char *bytes = (const unsigned char*)data;
@@ -48,4 +49,22 @@ void compute_hash(const void *data, int len, unsigned char *hash) {
     
     hash[0] ^= hash[7] ^ hash[15] ^ hash[19];
     hash[1] ^= hash[8] ^ hash[14] ^ hash[18];
+}
+
+int hex_value(char c) {
+    if (c >= '0' && c <= '9') return c - '0';
+    if (c >= 'a' && c <= 'f') return c - 'a' + 10;
+    if (c >= 'A' && c <= 'F') return c - 'A' + 10;
+    return -1;
+}
+
+int parse_hash(const char *s, unsigned char *hash) {
+    if (!s || !hash || strlen(s) < SHA1_HASH_SIZE * 2) return 0;
+    for (int i = 0; i < SHA1_HASH_SIZE; i++) {
+        int hi = hex_value(s[i * 2]);
+        int lo = hex_value(s[i * 2 + 1]);
+        if (hi < 0 || lo < 0) return 0;
+        hash[i] = (unsigned char)((hi << 4) | lo);
+    }
+    return 1;
 }

@@ -31,13 +31,15 @@ Commit* cmd_commit(RepoState *repo, const char *message) {
         return NULL;
     }
     
-    //  сохраняем обьекты
-    save_object(repo->store, new_commit, OBJ_COMMIT, new_commit->hash);
     
-    Tree *tree = (Tree*)get_object(repo->store, new_commit->tree_hash);
+    Tree *committed_tree = clone_tree(repo->staging_area);
+    save_object(repo->store, committed_tree, OBJ_TREE, committed_tree->hash);
+    add_object(repo->store, committed_tree, committed_tree->hash);
+
+    Tree *tree = repo->staging_area;
     if (tree) {
         save_object(repo->store, tree, OBJ_TREE, tree->hash);
-        
+
         for (int i = 0; i < tree->entry_count; i++) {
             if (tree->entries[i].type == BLOB_ENTRY) {
                 Blob *blob = (Blob*)get_object(repo->store, tree->entries[i].hash);
@@ -47,6 +49,9 @@ Commit* cmd_commit(RepoState *repo, const char *message) {
             }
         }
     }
+
+    // Потом сохраняем commit 
+    save_object(repo->store, new_commit, OBJ_COMMIT, new_commit->hash);
     
     repo->head = new_commit;
     
@@ -62,7 +67,7 @@ Commit* cmd_commit(RepoState *repo, const char *message) {
     }
     
     free_tree(repo->staging_area);
-    repo->staging_area = create_tree();
+    repo->staging_area = clone_tree(committed_tree);
     
     printf("Commit created successfully!\n");
     printf("   Hash: ");

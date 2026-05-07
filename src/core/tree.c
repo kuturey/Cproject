@@ -159,20 +159,42 @@ Tree* get_commit_tree(Commit *commit, ObjectStore *store) {
 }
 
 int get_file_exists(Commit *commit, const char *path, ObjectStore *store) {
+    if (!commit || !path || !store) {
+        return 0;
+    }
+    
     Tree *tree = get_commit_tree(commit, store);
+    if (!tree) {
+        return 0;
+    }
 
     TreeEntry *entry = find_tree_entry(tree, path);
+    if (!entry) {
+        return 0;
+    }
 
     return entry->type == BLOB_ENTRY;
 }
 
 char* get_file_content(Commit *commit, const char *path, ObjectStore *store) {
+    if (!commit || !path || !store) {
+        return NULL;
+    }
 
     Tree *tree = get_commit_tree(commit, store);
+    if (!tree) {
+        return NULL;
+    }
 
     TreeEntry *entry = find_tree_entry(tree, path);
+    if (!entry || entry->type != BLOB_ENTRY) {
+        return NULL;
+    }
 
     Blob *blob = (Blob*)get_object(store, entry->hash);
+    if (!blob || !blob->content) {
+        return NULL;
+    }
 
     return stringdup(blob->content);
 }

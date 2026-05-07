@@ -1,6 +1,12 @@
 #include <stdio.h>
 #include <string.h>
+#include <sys/stat.h>
 #include "include/minigit.h"
+
+int repository_exists(void) {
+    struct stat st;
+    return stat(".minigit", &st) == 0 && S_ISDIR(st.st_mode);
+}
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
@@ -27,14 +33,22 @@ int main(int argc, char *argv[]) {
     
     char *command = argv[1];
     
-    RepoState *repo;
+    RepoState *repo = NULL;
 
-    if (strcmp(command, "init") == 0){
-        repo = init_repo();
-        if (!repo) {
-            printf("Failed to init repo\n");
-            return 1;
-        }
+    if (strcmp(command, "init") != 0 && !repository_exists()) {
+        printf("Repository is not initialized. Run first:\n");
+        printf("  minigit init\n");
+        return 1;
+    }
+
+    repo = init_repo();
+    if (!repo) {
+        printf("Failed to init repo\n");
+        return 1;
+    }
+
+    if (strcmp(command, "init") == 0) {
+        return 0;
     }
     else if (strcmp(command, "add") == 0) {
         if (argc >= 4) {
@@ -97,7 +111,10 @@ int main(int argc, char *argv[]) {
         } 
         else {
             printf("Branch %s head: ", argv[2]);
-            printf(head->hash);
+            for (int i = 0; i < SHA1_HASH_SIZE; i++) {
+                printf("%02x", head->hash[i]);
+            }
+
             printf("\n");
             print_commit(head);
         }
