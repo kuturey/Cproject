@@ -65,7 +65,7 @@ void print_commit(Commit *commit) {
     if (!commit) return;
     
     printf("\ncommit ");
-    for(int i = 0; i < 8; i++) printf("%02x", commit->hash[i]);
+    for(int i = 0; i < 20; i++) printf("%02x", commit->hash[i]);
     printf("\n");
     
     int has_parent = 0;
@@ -77,7 +77,7 @@ void print_commit(Commit *commit) {
     }
     if (has_parent) {
         printf("parent ");
-        for(int i = 0; i < 8; i++) printf("%02x", commit->parent_hash[i]);
+        for(int i = 0; i < 20; i++) printf("%02x", commit->parent_hash[i]);
         printf("\n");
     }
     

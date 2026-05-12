@@ -18,7 +18,7 @@ void cmd_log(RepoState *repo) {
     
     while (current) {
         printf("\ncommit ");
-        for(int i = 0; i < 8; i++) printf("%02x", current->hash[i]);
+        for(int i = 0; i < 20; i++) printf("%02x", current->hash[i]);
         printf("\n");
         
         // Проверяем наличие родителя (не все нули)
@@ -32,7 +32,7 @@ void cmd_log(RepoState *repo) {
         
         if (has_parent) {
             printf("parent ");
-            for(int i = 0; i < 8; i++) printf("%02x", current->parent_hash[i]);
+            for(int i = 0; i < 20; i++) printf("%02x", current->parent_hash[i]);
             printf("\n");
         }
         
@@ -75,7 +75,7 @@ void cmd_show(RepoState *repo, const char *commit_hash_str) {
     
     // Печатаем коммит
     printf("\ncommit ");
-    for(int i = 0; i < 8; i++) printf("%02x", commit->hash[i]);
+    for(int i = 0; i < 20; i++) printf("%02x", commit->hash[i]);
     printf("\n");
     
     // Проверяем наличие родителя
@@ -89,7 +89,7 @@ void cmd_show(RepoState *repo, const char *commit_hash_str) {
     
     if (has_parent) {
         printf("parent ");
-        for(int i = 0; i < 8; i++) printf("%02x", commit->parent_hash[i]);
+        for(int i = 0; i < 20; i++) printf("%02x", commit->parent_hash[i]);
         printf("\n");
     }
     

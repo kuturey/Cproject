@@ -9,5 +9,15 @@ $(BIN): $(SRC)
 	mkdir -p bin
 	$(CC) $(CFLAGS) $(SRC) -o $(BIN)
 
+BINDIR ?= $(HOME)/.local/bin
+
+install: all
+	mkdir -p $(BINDIR)
+	cp bin/minigit $(BINDIR)/minigit
+	chmod +x $(BINDIR)/minigit
+
+uninstall:
+	rm -f $(BINDIR)/minigit
+
 clean:
-	rm -rf bin .minigit
+	rm -rf bin

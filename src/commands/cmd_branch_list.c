@@ -146,7 +146,7 @@ void cmd_branch_list(RepoState *repo) {
         }
         
         printf(" [");
-        for(int i = 0; i < 8; i++) {
+        for(int i = 0; i < 20; i++) {
             printf("%02x", current->commit_hash[i]);
         }
         printf("]\n");

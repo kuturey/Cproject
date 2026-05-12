@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
         printf("  content <commit|HEAD> <file>  - Get file content from version\n");
         printf("  exists <commit|HEAD> <file>   - Check file existence\n");
        // printf("  stats                     - Show repository statistics\n");
-        printf("  print_files                   - List files in working directory\n");
+        printf("  print_files                   - List files in working branch\n");
         printf("  branch                        - List branches\n");
         printf("  get_branch_head <name>        - show head commit of branch\n");
         printf("  branch <name>                 - Create a new branch\n");

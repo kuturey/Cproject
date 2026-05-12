@@ -71,7 +71,7 @@ Commit* cmd_commit(RepoState *repo, const char *message) {
     
     printf("Commit created successfully!\n");
     printf("   Hash: ");
-    for(int i = 0; i < 8; i++) printf("%02x", new_commit->hash[i]);
+    for(int i = 0; i < 20; i++) printf("%02x", new_commit->hash[i]);
     printf("\n");
     
     save_repo_state(repo);

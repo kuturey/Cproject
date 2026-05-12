@@ -155,6 +155,10 @@ int remove_tree_entry(Tree *tree, const char *name){
 }
 
 Tree* get_commit_tree(Commit *commit, ObjectStore *store) {
+    if (!commit || !store) {
+        return NULL;
+    }
+    
     return (Tree*)get_object(store, commit->tree_hash);
 }
 
@@ -208,7 +212,7 @@ void print_files(Commit *commit, ObjectStore *store) {
         TreeEntry *e = &tree->entries[i];
         printf("  %s  ", e->name);
 
-        for (int j = 0; j < 8; j++) {
+        for (int j = 0; j < 20; j++) {
             printf("%02x", e->hash[j]);
         }
 
@@ -218,15 +222,20 @@ void print_files(Commit *commit, ObjectStore *store) {
 
 void print_tree(Tree *tree) {
     if (!tree) return;
+
     printf("\nTree:\n");
     printf("  Hash: ");
-    for(int i = 0; i < 8; i++) printf("%02x", tree->hash[i]);
+    
+    for(int i = 0; i < 20; i++) printf("%02x", tree->hash[i]);
+    
     printf("\n");
     printf("  Entries: %d\n", tree->entry_count);
+    
     for (int i = 0; i < tree->entry_count; i++) {
         TreeEntry *e = &tree->entries[i];
         printf("  %s: ", e->name);
-        for(int j = 0; j < 5; j++) printf("%02x", e->hash[j]);
+        
+        for(int j = 0; j < 20; j++) printf("%02x", e->hash[j]);
         printf(" (%s)\n", e->type == BLOB_ENTRY ? "blob" : "tree");
     }
 }
