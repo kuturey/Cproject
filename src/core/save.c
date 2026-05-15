@@ -7,6 +7,11 @@
 #include <dirent.h>
 #include <unistd.h>
 
+#ifdef _WIN32
+#include <direct.h>
+#define mkdir(path, mode) _mkdir(path)
+#endif
+
 #define MINIGIT_DIR ".minigit"
 #define OBJECTS_DIR ".minigit/objects"
 #define HEAD_FILE ".minigit/HEAD"
