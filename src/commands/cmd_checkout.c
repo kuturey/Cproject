@@ -28,7 +28,20 @@ int cmd_checkout(RepoState *repo, const char *target) {
         Commit *target_commit = (Commit*)get_object(repo->store, hash);
         if (target_commit) {
             repo->head = target_commit;
-            repo->current_branch = NULL;
+
+            if (repo->current_branch) {
+                free(repo->current_branch);
+                repo->current_branch = NULL;
+            }
+
+            /* Синхронизируем staging_area с деревом коммита,
+             * иначе add/commit продолжат работать со старыми файлами */
+            if (repo->staging_area) free_tree(repo->staging_area);
+            Tree *commit_tree = get_commit_tree(target_commit, repo->store);
+            repo->staging_area = commit_tree ? clone_tree(commit_tree) : create_tree();
+
+            save_repo_state(repo);
+
             printf("Switched to commit\n");
             return 0;
         }

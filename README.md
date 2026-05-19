@@ -20,7 +20,7 @@ MiniGit реализует базовые возможности Git:
 - **Хеширование** — каждый объект идентифицируется по SHA-1 подобному хешу
 - **Ветвление** — создание, переключение и удаление веток
 - **Staging area** — промежуточная область перед коммитом
-## 🏗 Архитектура
+## Архитектура
 
 Проект разделён на два основных слоя:
 
@@ -33,16 +33,19 @@ MiniGit реализует базовые возможности Git:
 - **`save.c`** — сохранение/загрузка данных на диск
 
 ### Команды (Commands) — `src/commands/`
-- **`cmd_add.c`** — добавление файлов в staging area
-- **`cmd_commit.c`** — создание коммитов
-- **`cmd_log.c`** — просмотр истории
+- **`cmd_add_remove.c`** — добавление/удаление файлов в staging area
 - **`cmd_branch_list.c`** — управление ветками
-- **`cmd_checkout.c`** — переключение между версиями
-- **`cmd_stats.c`** — статистика репозитория
-- **`cmd_ls_files.c`** / **`cmd_ls_tree.c`** — просмотр файлов
+- **`cmd_checkout.c`** — переключение между ветками/коммитами
+- **`cmd_commit.c`** — создание коммитов
+- **`cmd_get_branch_head.c`** — возвращает последний коммит введенной ветки.
+- **`cmd_get_file.c`** — информация о файлах
+- **`cmd_log.c`** — просмотр истории
+- **`cmd_print_files.c`** — просмотр файлов
+- **`cmd_simple_merge.c`** — новый коммит, который содержит файлы из второго коммита поверх первого
+(без разрешения конфликтов).
 - **`repo.c`** — состояние репозитория
 
-## 📁 Структура файлов
+## Структура файлов
 
 ```
 minigit/
@@ -57,33 +60,35 @@ minigit/
 └── README.md          # этот файл
 ```
 
-## ⚙️ Основные функции
+## Основные функции
 
 | Команда | Описание |
 |---------|----------|
+| `init` | Инициализировать репозиторий|
 | `add <file> <content>` | Добавить файл в staging area |
+| `rm <file>` | Удалить файл в следующей версии |
 | `commit <message>` | Создать коммит |
-| `log` | Показать историю коммитов |
-| `stats` | Показать статистику |
+| `print_commit <hash>` | Показать детали коммита |
+| `print_history` | Показать историю коммитов |
+| `content <commit|HEAD> <file>` | Показать содержание файла в указанном коммите |
+| `exists <commit|HEAD> <file>` | Проверка существования файла |
 | `branch` | Список веток |
+| `get_branch_head <name>` | возвращает последний коммит введенной ветки |
 | `branch <name>` | Создать новую ветку |
-| `branch checkout <name>` | Переключиться на ветку |
-| `branch delete <name>` | Удалить ветку |
-| `ls-files` | Показать файлы в staging |
-| `ls-tree <hash>` | Показать содержимое дерева |
-| `show <hash>` | Показать информацию о коммите |
+| `checkout <name>` | Переключиться на ветку / коммит |
+| `branch -d <name>` | Удалить ветку |
+| `print_files` | Показать файлы в текущей ветке |
+| `merge <branch> <message>` | Слить ветки без разрешения конфликтов |
 
-## 🔧 Сборка и запуск
+## Сборка и запуск
 
-```bash
-# Компиляция
-gcc -Iinclude src/core/*.c src/commands/*.c src/main.c -o bin/minigit.exe
+С помощью makefile (Если хотите запускать minigit в любой директории: make install для установки бинарника в .local/bin)
 
 # Запуск (из корневой папки)
-bin/minigit.exe <команда> [аргументы]
+bin/minigit.exe <команда> [аргументы] или minigit <command> (minigit.exe в windows) если установить в .local/bin
 ```
 
-## 🎯 Использование
+## Использование
 
 ```bash
 # Создать новый файл и сделать коммит
@@ -95,17 +100,13 @@ bin/minigit.exe add main.c "#include <stdio.h>"
 bin/minigit.exe commit "Add main.c"
 
 # Посмотреть историю
-bin/minigit.exe log
+bin/minigit.exe print_history
 
 # Создать и переключиться на ветку
 bin/minigit.exe branch develop
-bin/minigit.exe branch checkout develop
+bin/minigit.exe checkout develop
 
-# Статистика
-bin/minigit.exe stats
-```
-
-## 💡 Пример работы
+## Пример работы
 
 ```
 $ bin/minigit.exe add README.md "# MiniGit"
@@ -117,7 +118,7 @@ Committing changes...
 Commit created successfully!
    Hash: a1b2c3d4e5f6...
 
-$ bin/minigit.exe log
+$ bin/minigit.exe print_history
 Commit history:
 ================
 commit a1b2c3d4e5f6...
@@ -125,7 +126,7 @@ Date: Mon Mar 18 12:34:56 2026
     Initial commit
 ```
 
-## 🔍 Особенности реализации
+## Особенности реализации
 
 ### Хеш-таблица
 - 256 корзин для быстрого поиска объектов

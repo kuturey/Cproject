@@ -10,7 +10,7 @@ int repository_exists(void) {
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
-        printf("Usage: minigit <command> [args]\n");
+        printf("Usage: minigit <command> <args>\n");
         printf("Commands:\n");
         printf("  init                          - Initialize empty repository\n");
         printf("  add <file> <content>          - Add file to staging area\n");
@@ -20,12 +20,11 @@ int main(int argc, char *argv[]) {
         printf("  print_commit <hash>           - Show commit details\n");
         printf("  content <commit|HEAD> <file>  - Get file content from version\n");
         printf("  exists <commit|HEAD> <file>   - Check file existence\n");
-       // printf("  stats                     - Show repository statistics\n");
         printf("  print_files                   - List files in working branch\n");
         printf("  branch                        - List branches\n");
         printf("  get_branch_head <name>        - show head commit of branch\n");
         printf("  branch <name>                 - Create a new branch\n");
-        printf("  checkout <name>               - Switch to commit\n");
+        printf("  checkout <name>               - Switch to commit/branch\n");
         printf("  branch -d <name>              - Delete a branch\n");
         printf("  merge <branch> <message>      - merge: branch files over current without solving conflicts\n");
         return 1;
@@ -74,9 +73,6 @@ int main(int argc, char *argv[]) {
     else if (strcmp(command, "print_history") == 0) {
         cmd_log(repo);
     }
-    /*else if (strcmp(command, "stats") == 0) {
-        cmd_stats(repo);
-    } переписать */
     else if (strcmp(command, "print_files") == 0) {
         cmd_print_files(repo->head, repo->store);
     }
