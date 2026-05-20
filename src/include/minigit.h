@@ -106,7 +106,6 @@ void free_object_store(ObjectStore *store);
 void add_object(ObjectStore *store, void *obj, const unsigned char *hash);
 void *get_object(ObjectStore *store, const unsigned char *hash);
 ObjectStore* get_global_store(void);
-void print_store_stats(ObjectStore *store);
 int has_object(ObjectStore *store, const unsigned char *hash);
 
 // hash.c
@@ -117,7 +116,6 @@ int parse_hash(const char *s, unsigned char *hash);
 // cmd_add_remove.c
 int cmd_add(RepoState *repo, const char *path, const char *content);
 int cmd_remove(RepoState *repo, const char *path);
-void print_staging_area(RepoState *repo);
 
 // cmd_commit.c
 Commit *cmd_commit(RepoState *repo, const char *message);

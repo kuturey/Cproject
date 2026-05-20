@@ -22,7 +22,7 @@ int cmd_checkout(RepoState *repo, const char *target) {
     if (strlen(target) >= SHA1_HASH_SIZE * 2) {
         for (int i = 0; i < SHA1_HASH_SIZE; i++) {
             char byte_str[3] = {target[i*2], target[i*2+1], '\0'};
-            hash[i] = (unsigned char)strtol(byte_str, NULL, 16);
+            hash[i] = (unsigned char)strtoll(byte_str, NULL, 16);
         }
         
         Commit *target_commit = (Commit*)get_object(repo->store, hash);

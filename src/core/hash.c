@@ -9,9 +9,11 @@ void compute_hash(const void *data, int len, unsigned char *hash) {
         0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0
     };
     
-    //переммешивание
+    //перемешивание
+    unsigned char byte;
+    unsigned int temp;
     for (int i = 0; i < len; i++) {
-        unsigned char byte = bytes[i];
+        byte = bytes[i];
         
         state[0] ^= (byte << 24) | (byte << 16) | (byte << 8) | byte;
         state[1] += byte * (i + 1);
@@ -19,7 +21,7 @@ void compute_hash(const void *data, int len, unsigned char *hash) {
         state[3] = (state[3] << 7) | (state[3] >> 25);
         state[4] += state[0] ^ state[2];
         
-        unsigned int temp = state[0];
+        temp = state[0];
         state[0] = state[1];
         state[1] = state[2];
         state[2] = state[3];
@@ -41,7 +43,7 @@ void compute_hash(const void *data, int len, unsigned char *hash) {
     }
     
     for (int i = 0; i < 5; i++) {
-        hash[i*4]     = (state[i] >> 24);
+        hash[i*4] = (state[i] >> 24);
         hash[i*4 + 1] = (state[i] >> 16);
         hash[i*4 + 2] = (state[i] >> 8);
         hash[i*4 + 3] = state[i];

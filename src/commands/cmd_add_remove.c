@@ -43,20 +43,3 @@ int cmd_remove(RepoState *repo, const char *path){
     printf("File not found: %s\n", path);
     return 0;
 }
-
-void print_staging_area(RepoState *repo) {
-    if (!repo || !repo->staging_area || repo->staging_area->entry_count == 0) {
-        printf("Staging area is empty\n");
-        return;
-    }
-    
-    printf("Staging area:\n");
-    printf("  Files ready to commit:\n");
-    
-    for (int i = 0; i < repo->staging_area->entry_count; i++) {
-        TreeEntry *e = &repo->staging_area->entries[i];
-        printf("    %s (", e->name);
-        for(int j = 0; j < 5; j++) printf("%02x", e->hash[j]);
-        printf("...)\n");
-    }
-}

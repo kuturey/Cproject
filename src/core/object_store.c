@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdio.h>
 
-static ObjectStore *global_store = NULL;
+ObjectStore *global_store = NULL;
 
 char *stringdup(const char *s) {
     size_t n = strlen(s) + 1;
@@ -31,7 +31,7 @@ ObjectStore* init_object_store(void) {
     return global_store;
 }
 
-static int get_bucket_index(const unsigned char *hash) {
+int get_bucket_index(const unsigned char *hash) {
     return hash[0];
 }
 
@@ -84,22 +84,6 @@ ObjectStore* get_global_store(void) {
         return init_object_store();
     }
     return global_store;
-}
-
-void collect_store_stats(ObjectStore *store) {
-    if (!store) return;
-    
-    int used_buckets = 0;
-    int max_chain = 0;
-    
-    for (int i = 0; i < 256; i++) {
-        if (store->bucket_count[i] > 0) {
-            used_buckets++;
-            if (store->bucket_count[i] > max_chain) {
-                max_chain = store->bucket_count[i];
-            }
-        }
-    }
 }
 
 void free_object_store(ObjectStore *store) {
