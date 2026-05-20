@@ -1,3 +1,4 @@
+// женя последние 4 и катя первые 4)
 #include "../include/minigit.h"
 #include <stdio.h>
 #include <string.h>
